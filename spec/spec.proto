@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "github.com/JHU-Delivery-Robot/Server/spec";
+
+package spec;
+
+service router {
+  rpc GetRoute(Coords) returns (Route) {}
+}
+
+message Coords {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+message Route {
+  string path = 1;
+}
