@@ -1,10 +1,11 @@
-package main
+package OSRMrouting
 
 import (
 	"context"
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	pb "github.com/JHU-Delivery-Robot/Server/tree/convert_to_go/OSRMrouting/spec"
 )
 
 func main() {
@@ -19,6 +20,9 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %s", err)
 	}
+}
+
+type server struct {
 }
 
 func (s *server) router(ctx context.Context, in *pb.Coords) (*pb.Route, error) {

@@ -1,4 +1,4 @@
-package main
+package OSRMrouting
 
 import (
 	"google.golang.org/grpc"

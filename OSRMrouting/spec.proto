@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-option go_package = "github.com/JHU-Delivery-Robot/Server";
+option go_package = "github.com/JHU-Delivery-Robot/Server/OSRMrouting/spec";
 
-package spec;
+package OSRMrouting;
 
 service router {
   rpc route(Coords) returns (Route) {}
