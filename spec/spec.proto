@@ -6,7 +6,14 @@ package spec;
 
 service router {
   rpc GetRoute(Coords) returns (Route) {}
+  rpc SendStatus(RobotStatus) returns (StatusConfirmation) {}
 }
+
+message Point {
+  float longitude = 1;
+  float latitude = 2;
+}
+
 
 message Coords {
   int32 x = 1;
@@ -15,4 +22,22 @@ message Coords {
 
 message Route {
   string path = 1;
+}
+
+message RobotStatus {
+  enum Status {
+    IDLE = 0;
+    TRANSIT = 1;
+    AWAITINGROUTE = 2;
+    ARRIVED = 3;
+    CHARGING = 4;
+    VIRTUAL = 5;
+  }
+  Status id = 1;
+  string message = 2;
+  Point location = 3;
+}
+
+message StatusConfirmation {
+  int32 errors = 1;
 }

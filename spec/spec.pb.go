@@ -20,6 +20,119 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type RobotStatus_Status int32
+
+const (
+	RobotStatus_IDLE          RobotStatus_Status = 0
+	RobotStatus_TRANSIT       RobotStatus_Status = 1
+	RobotStatus_AWAITINGROUTE RobotStatus_Status = 2
+	RobotStatus_ARRIVED       RobotStatus_Status = 3
+	RobotStatus_CHARGING      RobotStatus_Status = 4
+	RobotStatus_VIRTUAL       RobotStatus_Status = 5
+)
+
+// Enum value maps for RobotStatus_Status.
+var (
+	RobotStatus_Status_name = map[int32]string{
+		0: "IDLE",
+		1: "TRANSIT",
+		2: "AWAITINGROUTE",
+		3: "ARRIVED",
+		4: "CHARGING",
+		5: "VIRTUAL",
+	}
+	RobotStatus_Status_value = map[string]int32{
+		"IDLE":          0,
+		"TRANSIT":       1,
+		"AWAITINGROUTE": 2,
+		"ARRIVED":       3,
+		"CHARGING":      4,
+		"VIRTUAL":       5,
+	}
+)
+
+func (x RobotStatus_Status) Enum() *RobotStatus_Status {
+	p := new(RobotStatus_Status)
+	*p = x
+	return p
+}
+
+func (x RobotStatus_Status) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RobotStatus_Status) Descriptor() protoreflect.EnumDescriptor {
+	return file_spec_spec_proto_enumTypes[0].Descriptor()
+}
+
+func (RobotStatus_Status) Type() protoreflect.EnumType {
+	return &file_spec_spec_proto_enumTypes[0]
+}
+
+func (x RobotStatus_Status) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RobotStatus_Status.Descriptor instead.
+func (RobotStatus_Status) EnumDescriptor() ([]byte, []int) {
+	return file_spec_spec_proto_rawDescGZIP(), []int{3, 0}
+}
+
+type Point struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Longitude float32 `protobuf:"fixed32,1,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	Latitude  float32 `protobuf:"fixed32,2,opt,name=latitude,proto3" json:"latitude,omitempty"`
+}
+
+func (x *Point) Reset() {
+	*x = Point{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_spec_spec_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Point) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Point) ProtoMessage() {}
+
+func (x *Point) ProtoReflect() protoreflect.Message {
+	mi := &file_spec_spec_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Point.ProtoReflect.Descriptor instead.
+func (*Point) Descriptor() ([]byte, []int) {
+	return file_spec_spec_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Point) GetLongitude() float32 {
+	if x != nil {
+		return x.Longitude
+	}
+	return 0
+}
+
+func (x *Point) GetLatitude() float32 {
+	if x != nil {
+		return x.Latitude
+	}
+	return 0
+}
+
 type Coords struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -32,7 +145,7 @@ type Coords struct {
 func (x *Coords) Reset() {
 	*x = Coords{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_spec_spec_proto_msgTypes[0]
+		mi := &file_spec_spec_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -45,7 +158,7 @@ func (x *Coords) String() string {
 func (*Coords) ProtoMessage() {}
 
 func (x *Coords) ProtoReflect() protoreflect.Message {
-	mi := &file_spec_spec_proto_msgTypes[0]
+	mi := &file_spec_spec_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +171,7 @@ func (x *Coords) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Coords.ProtoReflect.Descriptor instead.
 func (*Coords) Descriptor() ([]byte, []int) {
-	return file_spec_spec_proto_rawDescGZIP(), []int{0}
+	return file_spec_spec_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Coords) GetX() int32 {
@@ -86,7 +199,7 @@ type Route struct {
 func (x *Route) Reset() {
 	*x = Route{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_spec_spec_proto_msgTypes[1]
+		mi := &file_spec_spec_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -99,7 +212,7 @@ func (x *Route) String() string {
 func (*Route) ProtoMessage() {}
 
 func (x *Route) ProtoReflect() protoreflect.Message {
-	mi := &file_spec_spec_proto_msgTypes[1]
+	mi := &file_spec_spec_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -112,7 +225,7 @@ func (x *Route) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Route.ProtoReflect.Descriptor instead.
 func (*Route) Descriptor() ([]byte, []int) {
-	return file_spec_spec_proto_rawDescGZIP(), []int{1}
+	return file_spec_spec_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Route) GetPath() string {
@@ -122,22 +235,156 @@ func (x *Route) GetPath() string {
 	return ""
 }
 
+type RobotStatus struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id       RobotStatus_Status `protobuf:"varint,1,opt,name=id,proto3,enum=spec.RobotStatus_Status" json:"id,omitempty"`
+	Message  string             `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Location *Point             `protobuf:"bytes,3,opt,name=location,proto3" json:"location,omitempty"`
+}
+
+func (x *RobotStatus) Reset() {
+	*x = RobotStatus{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_spec_spec_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RobotStatus) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RobotStatus) ProtoMessage() {}
+
+func (x *RobotStatus) ProtoReflect() protoreflect.Message {
+	mi := &file_spec_spec_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RobotStatus.ProtoReflect.Descriptor instead.
+func (*RobotStatus) Descriptor() ([]byte, []int) {
+	return file_spec_spec_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RobotStatus) GetId() RobotStatus_Status {
+	if x != nil {
+		return x.Id
+	}
+	return RobotStatus_IDLE
+}
+
+func (x *RobotStatus) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *RobotStatus) GetLocation() *Point {
+	if x != nil {
+		return x.Location
+	}
+	return nil
+}
+
+type StatusConfirmation struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Errors int32 `protobuf:"varint,1,opt,name=errors,proto3" json:"errors,omitempty"`
+}
+
+func (x *StatusConfirmation) Reset() {
+	*x = StatusConfirmation{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_spec_spec_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StatusConfirmation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StatusConfirmation) ProtoMessage() {}
+
+func (x *StatusConfirmation) ProtoReflect() protoreflect.Message {
+	mi := &file_spec_spec_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StatusConfirmation.ProtoReflect.Descriptor instead.
+func (*StatusConfirmation) Descriptor() ([]byte, []int) {
+	return file_spec_spec_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StatusConfirmation) GetErrors() int32 {
+	if x != nil {
+		return x.Errors
+	}
+	return 0
+}
+
 var File_spec_spec_proto protoreflect.FileDescriptor
 
 var file_spec_spec_proto_rawDesc = []byte{
 	0x0a, 0x0f, 0x73, 0x70, 0x65, 0x63, 0x2f, 0x73, 0x70, 0x65, 0x63, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x12, 0x04, 0x73, 0x70, 0x65, 0x63, 0x22, 0x24, 0x0a, 0x06, 0x43, 0x6f, 0x6f, 0x72, 0x64,
-	0x73, 0x12, 0x0c, 0x0a, 0x01, 0x78, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x01, 0x78, 0x12,
-	0x0c, 0x0a, 0x01, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x01, 0x79, 0x22, 0x1b, 0x0a,
-	0x05, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74, 0x68, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x32, 0x31, 0x0a, 0x06, 0x72, 0x6f,
-	0x75, 0x74, 0x65, 0x72, 0x12, 0x27, 0x0a, 0x08, 0x47, 0x65, 0x74, 0x52, 0x6f, 0x75, 0x74, 0x65,
-	0x12, 0x0c, 0x2e, 0x73, 0x70, 0x65, 0x63, 0x2e, 0x43, 0x6f, 0x6f, 0x72, 0x64, 0x73, 0x1a, 0x0b,
-	0x2e, 0x73, 0x70, 0x65, 0x63, 0x2e, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x22, 0x00, 0x42, 0x2b, 0x5a,
-	0x29, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x4a, 0x48, 0x55, 0x2d,
-	0x44, 0x65, 0x6c, 0x69, 0x76, 0x65, 0x72, 0x79, 0x2d, 0x52, 0x6f, 0x62, 0x6f, 0x74, 0x2f, 0x53,
-	0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x73, 0x70, 0x65, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0x6f, 0x12, 0x04, 0x73, 0x70, 0x65, 0x63, 0x22, 0x41, 0x0a, 0x05, 0x50, 0x6f, 0x69, 0x6e, 0x74,
+	0x12, 0x1c, 0x0a, 0x09, 0x6c, 0x6f, 0x6e, 0x67, 0x69, 0x74, 0x75, 0x64, 0x65, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x02, 0x52, 0x09, 0x6c, 0x6f, 0x6e, 0x67, 0x69, 0x74, 0x75, 0x64, 0x65, 0x12, 0x1a,
+	0x0a, 0x08, 0x6c, 0x61, 0x74, 0x69, 0x74, 0x75, 0x64, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02,
+	0x52, 0x08, 0x6c, 0x61, 0x74, 0x69, 0x74, 0x75, 0x64, 0x65, 0x22, 0x24, 0x0a, 0x06, 0x43, 0x6f,
+	0x6f, 0x72, 0x64, 0x73, 0x12, 0x0c, 0x0a, 0x01, 0x78, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52,
+	0x01, 0x78, 0x12, 0x0c, 0x0a, 0x01, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x05, 0x52, 0x01, 0x79,
+	0x22, 0x1b, 0x0a, 0x05, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x74,
+	0x68, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x70, 0x61, 0x74, 0x68, 0x22, 0xd6, 0x01,
+	0x0a, 0x0b, 0x52, 0x6f, 0x62, 0x6f, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x28, 0x0a,
+	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x18, 0x2e, 0x73, 0x70, 0x65, 0x63,
+	0x2e, 0x52, 0x6f, 0x62, 0x6f, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x2e, 0x53, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x52, 0x02, 0x69, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67,
+	0x65, 0x12, 0x27, 0x0a, 0x08, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x73, 0x70, 0x65, 0x63, 0x2e, 0x50, 0x6f, 0x69, 0x6e, 0x74,
+	0x52, 0x08, 0x6c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x5a, 0x0a, 0x06, 0x53, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x12, 0x08, 0x0a, 0x04, 0x49, 0x44, 0x4c, 0x45, 0x10, 0x00, 0x12, 0x0b,
+	0x0a, 0x07, 0x54, 0x52, 0x41, 0x4e, 0x53, 0x49, 0x54, 0x10, 0x01, 0x12, 0x11, 0x0a, 0x0d, 0x41,
+	0x57, 0x41, 0x49, 0x54, 0x49, 0x4e, 0x47, 0x52, 0x4f, 0x55, 0x54, 0x45, 0x10, 0x02, 0x12, 0x0b,
+	0x0a, 0x07, 0x41, 0x52, 0x52, 0x49, 0x56, 0x45, 0x44, 0x10, 0x03, 0x12, 0x0c, 0x0a, 0x08, 0x43,
+	0x48, 0x41, 0x52, 0x47, 0x49, 0x4e, 0x47, 0x10, 0x04, 0x12, 0x0b, 0x0a, 0x07, 0x56, 0x49, 0x52,
+	0x54, 0x55, 0x41, 0x4c, 0x10, 0x05, 0x22, 0x2c, 0x0a, 0x12, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x16, 0x0a, 0x06,
+	0x65, 0x72, 0x72, 0x6f, 0x72, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x06, 0x65, 0x72,
+	0x72, 0x6f, 0x72, 0x73, 0x32, 0x6e, 0x0a, 0x06, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x12, 0x27,
+	0x0a, 0x08, 0x47, 0x65, 0x74, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x0c, 0x2e, 0x73, 0x70, 0x65,
+	0x63, 0x2e, 0x43, 0x6f, 0x6f, 0x72, 0x64, 0x73, 0x1a, 0x0b, 0x2e, 0x73, 0x70, 0x65, 0x63, 0x2e,
+	0x52, 0x6f, 0x75, 0x74, 0x65, 0x22, 0x00, 0x12, 0x3b, 0x0a, 0x0a, 0x53, 0x65, 0x6e, 0x64, 0x53,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x11, 0x2e, 0x73, 0x70, 0x65, 0x63, 0x2e, 0x52, 0x6f, 0x62,
+	0x6f, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x1a, 0x18, 0x2e, 0x73, 0x70, 0x65, 0x63, 0x2e,
+	0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x72, 0x6d, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x22, 0x00, 0x42, 0x2b, 0x5a, 0x29, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
+	0x6f, 0x6d, 0x2f, 0x4a, 0x48, 0x55, 0x2d, 0x44, 0x65, 0x6c, 0x69, 0x76, 0x65, 0x72, 0x79, 0x2d,
+	0x52, 0x6f, 0x62, 0x6f, 0x74, 0x2f, 0x53, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2f, 0x73, 0x70, 0x65,
+	0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -152,19 +399,28 @@ func file_spec_spec_proto_rawDescGZIP() []byte {
 	return file_spec_spec_proto_rawDescData
 }
 
-var file_spec_spec_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_spec_spec_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_spec_spec_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_spec_spec_proto_goTypes = []interface{}{
-	(*Coords)(nil), // 0: spec.Coords
-	(*Route)(nil),  // 1: spec.Route
+	(RobotStatus_Status)(0),    // 0: spec.RobotStatus.Status
+	(*Point)(nil),              // 1: spec.Point
+	(*Coords)(nil),             // 2: spec.Coords
+	(*Route)(nil),              // 3: spec.Route
+	(*RobotStatus)(nil),        // 4: spec.RobotStatus
+	(*StatusConfirmation)(nil), // 5: spec.StatusConfirmation
 }
 var file_spec_spec_proto_depIdxs = []int32{
-	0, // 0: spec.router.GetRoute:input_type -> spec.Coords
-	1, // 1: spec.router.GetRoute:output_type -> spec.Route
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: spec.RobotStatus.id:type_name -> spec.RobotStatus.Status
+	1, // 1: spec.RobotStatus.location:type_name -> spec.Point
+	2, // 2: spec.router.GetRoute:input_type -> spec.Coords
+	4, // 3: spec.router.SendStatus:input_type -> spec.RobotStatus
+	3, // 4: spec.router.GetRoute:output_type -> spec.Route
+	5, // 5: spec.router.SendStatus:output_type -> spec.StatusConfirmation
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_spec_spec_proto_init() }
@@ -174,7 +430,7 @@ func file_spec_spec_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_spec_spec_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Coords); i {
+			switch v := v.(*Point); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -186,7 +442,43 @@ func file_spec_spec_proto_init() {
 			}
 		}
 		file_spec_spec_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Coords); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_spec_spec_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Route); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_spec_spec_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RobotStatus); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_spec_spec_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StatusConfirmation); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -203,13 +495,14 @@ func file_spec_spec_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_spec_spec_proto_rawDesc,
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      1,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_spec_spec_proto_goTypes,
 		DependencyIndexes: file_spec_spec_proto_depIdxs,
+		EnumInfos:         file_spec_spec_proto_enumTypes,
 		MessageInfos:      file_spec_spec_proto_msgTypes,
 	}.Build()
 	File_spec_spec_proto = out.File
