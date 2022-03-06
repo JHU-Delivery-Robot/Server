@@ -31,5 +31,5 @@ func main() {
 	if err2 != nil {
 		log.Fatalf("could not get path: %v", err2)
 	}
-	log.Printf("Path: %s", r2.GetPath())
+	log.Printf("Lat: %f Lon: %f", r2.GetLatitude(), r2.GetLongitude())
 }

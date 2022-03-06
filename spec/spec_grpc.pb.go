@@ -18,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RouterClient interface {
-	GetRoute(ctx context.Context, in *Coords, opts ...grpc.CallOption) (*Route, error)
+	GetRoute(ctx context.Context, in *Coords, opts ...grpc.CallOption) (*RoutePoint, error)
 	SendStatus(ctx context.Context, in *RobotStatus, opts ...grpc.CallOption) (*StatusConfirmation, error)
 }
 
@@ -30,8 +30,8 @@ func NewRouterClient(cc grpc.ClientConnInterface) RouterClient {
 	return &routerClient{cc}
 }
 
-func (c *routerClient) GetRoute(ctx context.Context, in *Coords, opts ...grpc.CallOption) (*Route, error) {
-	out := new(Route)
+func (c *routerClient) GetRoute(ctx context.Context, in *Coords, opts ...grpc.CallOption) (*RoutePoint, error) {
+	out := new(RoutePoint)
 	err := c.cc.Invoke(ctx, "/spec.router/GetRoute", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (c *routerClient) SendStatus(ctx context.Context, in *RobotStatus, opts ...
 // All implementations must embed UnimplementedRouterServer
 // for forward compatibility
 type RouterServer interface {
-	GetRoute(context.Context, *Coords) (*Route, error)
+	GetRoute(context.Context, *Coords) (*RoutePoint, error)
 	SendStatus(context.Context, *RobotStatus) (*StatusConfirmation, error)
 	mustEmbedUnimplementedRouterServer()
 }
@@ -61,7 +61,7 @@ type RouterServer interface {
 type UnimplementedRouterServer struct {
 }
 
-func (UnimplementedRouterServer) GetRoute(context.Context, *Coords) (*Route, error) {
+func (UnimplementedRouterServer) GetRoute(context.Context, *Coords) (*RoutePoint, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRoute not implemented")
 }
 func (UnimplementedRouterServer) SendStatus(context.Context, *RobotStatus) (*StatusConfirmation, error) {
