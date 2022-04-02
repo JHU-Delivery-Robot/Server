@@ -16,10 +16,16 @@ type Server struct {
 func (s *Server) GetRoute(ctx context.Context, in *pb.Coords) (*pb.RoutePoint, error) {
 	log.Printf("Received Coords: (%v, %v)\n", in.GetX(), in.GetY())
 
-	data, err := ioutil.ReadFile("testRoute.txt")
+	data, err := ioutil.ReadFile("./testRoute.txt")
+
 	if err == nil {
-		var nextRoute routing.OSRMRoute = routing.GetOSRMRoute(string(data))
-		return &pb.RoutePoint{Longitude: nextRoute.Longitude, Latitude: nextRoute.Latitude}, nil
+		var nextRoute routing.OSRMRoute = routing.GetOSRMRoute(data)
+		var points []*pb.Point
+		for i := 0; i < len(nextRoute.Latitude); i++ {
+
+			points = append(points, &pb.Point{Longitude: nextRoute.Longitude[i], Latitude: nextRoute.Latitude[i]})
+		}
+		return &pb.RoutePoint{Waypoints: points}, nil
 	} else {
 		return nil, err
 	}

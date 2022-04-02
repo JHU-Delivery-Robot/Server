@@ -21,8 +21,7 @@ message Coords {
 }
 
 message RoutePoint {
-  double longitude = 1;
-  double latitude = 2;
+  repeated Point waypoints = 1;
 }
 
 message RobotStatus {

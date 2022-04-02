@@ -19,11 +19,12 @@ RUN apt-get update \
     
 RUN protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative spec/spec.proto
 
-RUN go build -o /src/server/server ./cmd/server/routing_server.go
+RUN go build -o /src/server/navserver ./cmd/server/main.go
 
 FROM ubuntu:latest
 
-COPY --from=build /src/server/server /usr/local/bin/navserver
-#COPY testRoute.txt /usr/local/bin/navserver/
+COPY --from=build /src/server/navserver /usr/local/bin/navserver/
+COPY testRoute.txt /usr/local/bin/navserver/
 
-RUN ["chmod", "+x", "/usr/local/bin/navserver"]
+WORKDIR /usr/local/bin/navserver
+ENTRYPOINT [ "./navserver" ]

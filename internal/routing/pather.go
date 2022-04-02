@@ -5,8 +5,8 @@ import (
 )
 
 type OSRMRoute struct {
-	Longitude float64
-	Latitude  float64
+	Longitude []float64
+	Latitude  []float64
 }
 
 type osrmRouteResponse struct {
@@ -21,18 +21,21 @@ type route struct {
 }
 
 type geometry struct {
-	Coordinates coordinates `json:"coordinates"`
+	Coordinates []coordinates `json:"coordinates"`
 }
 
 type coordinates []float64
 
-func GetOSRMRoute(outputJson string) OSRMRoute {
+func GetOSRMRoute(outputJson []byte) OSRMRoute {
 	var jsonParse osrmRouteResponse
-	json.Unmarshal([]byte(outputJson), &jsonParse)
+	json.Unmarshal(outputJson, &jsonParse)
+
 	var information OSRMRoute
 
-	information.Longitude = jsonParse.Routes[1].Geometry.Coordinates[0]
-	information.Latitude = jsonParse.Routes[1].Geometry.Coordinates[1]
+	for i := 0; i < len(jsonParse.Routes[0].Geometry.Coordinates); i++ {
+		information.Longitude = append(information.Longitude, jsonParse.Routes[0].Geometry.Coordinates[i][0])
+		information.Latitude = append(information.Latitude, jsonParse.Routes[0].Geometry.Coordinates[i][1])
+	}
 
 	return information
 }

@@ -31,5 +31,7 @@ func main() {
 	if err2 != nil {
 		log.Fatalf("could not get path: %v", err2)
 	}
-	log.Printf("Lat: %f Lon: %f", r2.GetLatitude(), r2.GetLongitude())
+	for i := 0; i < len(r2.GetWaypoints()); i++ {
+		log.Printf("Lat: %f\tLon: %f\n", r2.GetWaypoints()[i].Latitude, r2.GetWaypoints()[i].Longitude)
+	}
 }
