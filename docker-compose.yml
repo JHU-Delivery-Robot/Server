@@ -1,11 +1,21 @@
 version: "3.9"
+
 services:
   server:
     build: .
     ports:
       - "9000:9000"
   osrm:
-    image: "6e654e0e06b3"
-    command: docker run -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /OSRMrouting/data/map.osrm
+    #docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-extract -p /data/OSRMrouting/wheelchair-elektro.lua /data/OSRMrouting/map.osm
+    #docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-partition /data/OSRMrouting/map.osrm
+    #docker run -t -v "${PWD}:/data" osrm/osrm-backend osrm-customize /data/OSRMrouting/map.osrm
+
+    #run command -  docker run -t -i -p 5000:5000 -v "${PWD}:/data" osrm/osrm-backend osrm-routed --algorithm mld /data/OSRMrouting/map.osrm
+    
+    container_name: osrm
+    image: osrm/osrm-backend
+    volumes:
+      - "./:/data"
+    command: "osrm-routed --algorithm mld /data/OSRMrouting/map.osrm"
     ports:
       - "5000:5000"
