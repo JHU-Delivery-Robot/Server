@@ -17,7 +17,7 @@ To force re-building the image, remove the containers using `docker compose down
 
 # Building gRPC
 
-We use protobufs and gRPC as the server protocol. When the gRPC service definitions are changed, the Go stubs needed to be re-generated using the command
+We use protobufs and gRPC as the server protocol. When the gRPC service definitions are changed, the Go stubs needed to be re-generated. This can be done using the command
 ```
-TODO
+protoc --go_out="." --go_opt=paths=source_relative --go-grpc_out="." --go_opt= --go-grpc_opt=paths=source_relative protocol/routing.proto
 ```

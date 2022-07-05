@@ -1,3 +1,8 @@
+--[[
+From https://github.com/species/osrm-wheelchair-profiles,
+licensed under the Unlicense (https://unlicense.org/)
+--]]
+
 -- Foot profile
 
 local find_access_tag = require("lib/access").find_access_tag

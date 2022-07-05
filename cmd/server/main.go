@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"github.com/JHU-Delivery-Robot/Server/internal/control"
-	pb "github.com/JHU-Delivery-Robot/Server/spec"
+	pb "github.com/JHU-Delivery-Robot/Server/protocol"
 	"google.golang.org/grpc"
 )
 
@@ -17,7 +17,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterRouterServer(grpcServer, &control.Server{})
+	pb.RegisterRoutingServer(grpcServer, &control.Server{})
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %s", err)

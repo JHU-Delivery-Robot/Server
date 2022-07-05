@@ -1,2 +1,5 @@
 # Ignore OpenStreetMap exports and OSRM data
 OSRM/data/
+
+# Ignore generated protobuf/gRPC files
+*.pb*
