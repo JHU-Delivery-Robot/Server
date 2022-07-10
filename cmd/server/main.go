@@ -2,31 +2,29 @@ package main
 
 import (
 	"context"
-	"flag"
-	"fmt"
 	"log"
 	"net"
-	"os"
 
-	"github.com/JHU-Delivery-Robot/Server/internal/control"
 	"github.com/JHU-Delivery-Robot/Server/internal/grpcutils"
-	"github.com/JHU-Delivery-Robot/Server/internal/routing"
-	pb "github.com/JHU-Delivery-Robot/Server/protocol"
+	"github.com/JHU-Delivery-Robot/Server/internal/middleware"
+	"github.com/JHU-Delivery-Robot/Server/internal/osrm"
+	"github.com/JHU-Delivery-Robot/Server/internal/server"
+	pb "github.com/JHU-Delivery-Robot/Server/protocols"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	flag.Usage = func() {
-		fmt.Printf("Usage: %s [config path]\n", os.Args[0])
-	}
+	// flag.Usage = func() {
+	// 	fmt.Printf("Usage: %s [config path]\n", os.Args[0])
+	// }
 
-	flag.Parse()
+	// flag.Parse()
 
-	args := flag.Args()
-	if len(args) != 1 {
-		flag.Usage()
-		os.Exit(1)
-	}
+	// args := flag.Args()
+	// if len(args) != 1 {
+	// 	flag.Usage()
+	// 	os.Exit(1)
+	// }
 
 	listener, err := net.Listen("tcp", ":9000")
 	if err != nil {
@@ -35,15 +33,17 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	router := routing.NewOSRMRouter()
+	osrm := osrm.New()
+	authentication := middleware.Authentication{}
 
-	server := grpc.NewServer()
-	routing := control.NewServer(ctx, &router)
-	pb.RegisterRoutingServer(server, &routing)
+	grpc := grpc.NewServer(grpc.UnaryInterceptor(authentication.GetUnaryMiddleware()))
+	server := server.New(ctx, osrm)
+	pb.RegisterRoutingServer(grpc, &server)
+	pb.RegisterDevelopmentServer(grpc, &server)
 
-	grpcutils.SetupShutdown(cancel, server)
+	grpcutils.SetupShutdown(cancel, grpc)
 
-	if err := server.Serve(listener); err != nil {
+	if err := grpc.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %s", err)
 	}
 }

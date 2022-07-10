@@ -15,15 +15,10 @@ To run this server, run:
 
 To force re-building the image, remove the containers using `docker compose down` and then remove the images with `docker rmi <image ids>` where `<image ids>` are relevant image IDs, which can be found using `docker images`.
 
-### Simulation Mode
-
-The server can be run in simulation mode, where it will provide robots with pre-defined routes rather than using OSRM. A JSON file containing a route expressed as a list of waypoints in a local Euclidean 2D coordinate frame, and lat/lon 'origin' coordinates to project the route to.
-
-To run in simulation mode, build the simulation server using `go build` inside `cmd/simulation`. Then run `simulation <sim_config.json>`, and leave it running as long as you need. Use ctrl+c in order to stop it.
-
 ## Building gRPC
 
-We use protobufs and gRPC as the server protocol. When the gRPC service definitions are changed, the Go stubs needed to be re-generated. This can be done using the command
+We use protobufs and gRPC as the server protocol. When the gRPC service definitions are changed, the Go stubs needed to be re-generated. This can be done using the commands
 ```
-protoc --go_out="." --go_opt=paths=source_relative --go-grpc_out="." --go_opt= --go-grpc_opt=paths=source_relative protocol/routing.proto
+protoc --proto_path="protocols" --go_out="protocols" --go_opt=paths=source_relative --go-grpc_out="protocols" --go_opt= --go-grpc_opt=paths=source_relative protocols/routing.proto
+protoc --proto_path="protocols" --go_out="protocols" --go_opt=paths=source_relative --go-grpc_out="protocols" --go_opt= --go-grpc_opt=paths=source_relative protocols/development.proto
 ```

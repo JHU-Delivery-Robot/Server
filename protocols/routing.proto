@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-option go_package = "github.com/JHU-Delivery-Robot/Server/protocol";
+option go_package = "github.com/JHU-Delivery-Robot/Server/protocols";
 
-package routing;
+package protocols.routing;
 
 service Routing {
   rpc GetRoute(RobotStatus) returns (Route) {}

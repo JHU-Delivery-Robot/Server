@@ -1,15 +1,16 @@
-package routing
+package osrm
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
 
-	pb "github.com/JHU-Delivery-Robot/Server/protocol"
+	pb "github.com/JHU-Delivery-Robot/Server/protocols"
 )
 
 type coordinates []float64
@@ -24,23 +25,31 @@ type route struct {
 	Duration float32  `json:"duration"`
 }
 
-type osrmRouteResponse struct {
+type routeResponse struct {
 	Code    string  `json:"code"`
-	Message string  `json:"message"`
+	Message *string `json:"message"`
 	Routes  []route `json:"routes"`
 }
 
-type osrmRouter struct {
+func (r routeResponse) String() string {
+	if r.Message != nil {
+		return fmt.Sprintf("%s: %s", r.Code, *r.Message)
+	}
+
+	return fmt.Sprintf("%s", r.Code)
+}
+
+type Client struct {
 	baseURL         string
 	profileName     string
 	maxResponseSize int64
 	client          *http.Client
 }
 
-func NewOSRMRouter() osrmRouter {
-	return osrmRouter{
+func New() Client {
+	return Client{
 		baseURL:         "http://osrm:5000",
-		profileName:     "wheelchair_elektro",
+		profileName:     "wheelchairelektro",
 		maxResponseSize: 1.2e+6,
 		client: &http.Client{
 			Timeout: time.Second * 10,
@@ -48,11 +57,11 @@ func NewOSRMRouter() osrmRouter {
 	}
 }
 
-func (r *osrmRouter) Route(ctx context.Context, start *pb.Point, end *pb.Point) (*Route, error) {
+func (c *Client) Route(ctx context.Context, start *pb.Point, end *pb.Point) ([]*pb.Point, error) {
 	start_string := strconv.FormatFloat(start.Longitude, 'f', 5, 64) + "," + strconv.FormatFloat(start.Latitude, 'f', 5, 64)
 	end_string := strconv.FormatFloat(end.Longitude, 'f', 5, 64) + "," + strconv.FormatFloat(end.Latitude, 'f', 5, 64)
 
-	url := r.baseURL + "/route/v1/" + r.profileName + "/" + start_string + ";" + end_string
+	url := c.baseURL + "/route/v1/" + c.profileName + "/" + start_string + ";" + end_string
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Print(err)
@@ -65,27 +74,36 @@ func (r *osrmRouter) Route(ctx context.Context, start *pb.Point, end *pb.Point) 
 	query.Add("geometries", "geojson")
 	req.URL.RawQuery = query.Encode()
 
-	response, err := r.client.Do(req)
-	if err != nil || response.StatusCode != http.StatusOK {
+	response, err := c.client.Do(req)
+	if err != nil {
 		return nil, err
+	}
+
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusBadRequest {
+		return nil, fmt.Errorf("HTTP %s", response.Status)
 	}
 
 	defer response.Body.Close()
 
-	var osrm_response osrmRouteResponse
-	if err := json.NewDecoder(io.LimitReader(response.Body, r.maxResponseSize)).Decode(&osrm_response); err != nil {
-		log.Print(err)
+	var osrm_response routeResponse
+	if err := json.NewDecoder(io.LimitReader(response.Body, c.maxResponseSize)).Decode(&osrm_response); err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
-	var route Route
+	if response.StatusCode == http.StatusBadRequest {
+		return nil, fmt.Errorf("OSRM error %s", osrm_response)
+	}
+
 	var points = osrm_response.Routes[0].Geometry.Coordinates
+	var waypoints = make([]*pb.Point, len(points))
+
 	for i := 0; i < len(points); i++ {
 		var waypoint pb.Point
 		waypoint.Longitude = points[i][0]
 		waypoint.Latitude = points[i][1]
-		route.Waypoints = append(route.Waypoints, &waypoint)
+		waypoints[i] = &waypoint
 	}
 
-	return &route, nil
+	return waypoints, nil
 }
