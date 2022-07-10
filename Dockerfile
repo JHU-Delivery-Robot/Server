@@ -7,17 +7,17 @@ RUN go mod download
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-COPY ./cmd ./internal ./spec ./
 COPY ./cmd/ ./cmd/
 COPY ./internal/ ./internal/
-COPY ./spec/ ./spec/
+COPY ./protocols/ ./protocols/
 
 RUN apt-get update \
 && DEBIAN_FRONTEND=noninteractive \
     apt-get install --no-install-recommends --assume-yes \
       protobuf-compiler
-    
-RUN protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative spec/spec.proto
+
+RUN protoc --proto_path="protocols" --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative protocols/routing.proto
+RUN protoc --proto_path="protocols" --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative protocols/development.proto
 
 RUN go build -o /src/server/navserver ./cmd/server/main.go
 

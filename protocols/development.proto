@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+option go_package = "github.com/JHU-Delivery-Robot/Server/protocols";
+
+package protocols.development;
+import "routing.proto";
+
+service Development {
+  rpc SetRoute(routing.Route) returns (RouteResponse) {}
+}
+
+message RouteResponse {}
