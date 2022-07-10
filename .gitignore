@@ -3,3 +3,7 @@ OSRM/data/
 
 # Ignore generated protobuf/gRPC files
 *.pb*
+
+# Ignore executables
+*.exe
+

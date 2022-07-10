@@ -1,4 +1,4 @@
-package osrm
+package routing
 
 import (
 	"context"
@@ -30,25 +30,29 @@ type osrmRouteResponse struct {
 	Routes  []route `json:"routes"`
 }
 
-type Route struct {
-	Waypoints []*pb.Point
+type osrmRouter struct {
+	baseURL         string
+	profileName     string
+	maxResponseSize int64
+	client          *http.Client
 }
 
-// Max size of response to read from OSRM
-const maxResponseSize int64 = 1.2e+6
-
-var osrmClient = &http.Client{
-	Timeout: time.Second * 10,
+func NewOSRMRouter() osrmRouter {
+	return osrmRouter{
+		baseURL:         "http://osrm:5000",
+		profileName:     "wheelchair_elektro",
+		maxResponseSize: 1.2e+6,
+		client: &http.Client{
+			Timeout: time.Second * 10,
+		},
+	}
 }
 
-const osrmBaseURL = "http://osrm:5000"
-const osrmProfileName = "wheelchair_elektro"
-
-func GetRoute(ctx context.Context, start *pb.Point, end *pb.Point) (*Route, error) {
+func (r *osrmRouter) Route(ctx context.Context, start *pb.Point, end *pb.Point) (*Route, error) {
 	start_string := strconv.FormatFloat(start.Longitude, 'f', 5, 64) + "," + strconv.FormatFloat(start.Latitude, 'f', 5, 64)
 	end_string := strconv.FormatFloat(end.Longitude, 'f', 5, 64) + "," + strconv.FormatFloat(end.Latitude, 'f', 5, 64)
 
-	url := osrmBaseURL + "/route/v1/" + osrmProfileName + "/" + start_string + ";" + end_string
+	url := r.baseURL + "/route/v1/" + r.profileName + "/" + start_string + ";" + end_string
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Print(err)
@@ -61,7 +65,7 @@ func GetRoute(ctx context.Context, start *pb.Point, end *pb.Point) (*Route, erro
 	query.Add("geometries", "geojson")
 	req.URL.RawQuery = query.Encode()
 
-	response, err := osrmClient.Do(req)
+	response, err := r.client.Do(req)
 	if err != nil || response.StatusCode != http.StatusOK {
 		return nil, err
 	}
@@ -69,17 +73,17 @@ func GetRoute(ctx context.Context, start *pb.Point, end *pb.Point) (*Route, erro
 	defer response.Body.Close()
 
 	var osrm_response osrmRouteResponse
-	if err := json.NewDecoder(io.LimitReader(response.Body, maxResponseSize)).Decode(&osrm_response); err != nil {
+	if err := json.NewDecoder(io.LimitReader(response.Body, r.maxResponseSize)).Decode(&osrm_response); err != nil {
 		log.Print(err)
 		return nil, err
 	}
 
 	var route Route
-
-	for i := 0; i < len(osrm_response.Routes[0].Geometry.Coordinates); i++ {
+	var points = osrm_response.Routes[0].Geometry.Coordinates
+	for i := 0; i < len(points); i++ {
 		var waypoint pb.Point
-		waypoint.Longitude = osrm_response.Routes[0].Geometry.Coordinates[i][0]
-		waypoint.Latitude = osrm_response.Routes[0].Geometry.Coordinates[i][1]
+		waypoint.Longitude = points[i][0]
+		waypoint.Latitude = points[i][1]
 		route.Waypoints = append(route.Waypoints, &waypoint)
 	}
 

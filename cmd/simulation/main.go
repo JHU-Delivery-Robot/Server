@@ -28,6 +28,11 @@ func main() {
 		os.Exit(1)
 	}
 
+	config, err := LoadConfig(args[0])
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
 	listener, err := net.Listen("tcp", ":9000")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -35,7 +40,7 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	router := routing.NewOSRMRouter()
+	router := routing.NewSimulationRouter(config.GetRoute())
 
 	server := grpc.NewServer()
 	routing := control.NewServer(ctx, &router)
@@ -44,6 +49,6 @@ func main() {
 	grpcutils.SetupShutdown(cancel, server)
 
 	if err := server.Serve(listener); err != nil {
-		log.Fatalf("failed to serve: %s", err)
+		log.Fatalf("failed to serve: %v", err)
 	}
 }
