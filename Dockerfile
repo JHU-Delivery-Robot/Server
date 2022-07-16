@@ -24,7 +24,7 @@ RUN go build -o /src/server/navserver ./cmd/server/main.go
 FROM ubuntu:latest
 
 COPY --from=build /src/server/navserver /usr/local/bin/navserver/
-COPY testRoute.txt /usr/local/bin/navserver/
+COPY ./certs/ /usr/local/bin/navserver/certs/
 
 WORKDIR /usr/local/bin/navserver
 ENTRYPOINT [ "./navserver" ]
