@@ -3,6 +3,9 @@ version: "3.9"
 services:
   server:
     build: .
+    volumes:
+      - "./certs:/etc/navserver/certs"
+      - "./config.json:/etc/navserver/config.json"
     ports:
       - "443:443"
   osrm:
@@ -11,5 +14,3 @@ services:
     volumes:
       - "./OSRM/data:/data"
     command: "osrm-routed --algorithm mld /data/map.osrm"
-    ports:
-      - "5000:5000"

@@ -1,20 +1,27 @@
+#!/usr/bin/env python3
+
 import argparse
 import datetime
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives.asymmetric import ec, rsa
 from cryptography.hazmat.primitives.serialization import pkcs12
+from cryptography.x509.oid import NameOID
 
 
 def save_key(key: ec.EllipticCurvePrivateKey, file_path: str, password: bytes):
     # Get unencrypted PEM private key description
+    encryption = (
+        serialization.BestAvailableEncryption(password)
+        if password is not None
+        else serialization.NoEncryption()
+    )
+
     key_bytes = key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption(),
+        encryption_algorithm=encryption,
     )
 
     with open(file_path, "wb") as f:
@@ -25,11 +32,13 @@ def load_key(file_path: str, password: bytes) -> ec.EllipticCurvePrivateKey:
     with open(file_path, "rb") as f:
         key_bytes = f.read()
 
-    key = serialization.load_pem_private_key(key_bytes, None)
+    key = serialization.load_pem_private_key(key_bytes, password)
     return key
 
 
-def save_cert(cert: x509.Certificate, file_path: str, root_cert: x509.Certificate=None):
+def save_cert(
+    cert: x509.Certificate, file_path: str, root_cert: x509.Certificate = None
+):
     cert_bytes = cert.public_bytes(serialization.Encoding.PEM)
 
     with open(file_path, "wb") as f:
@@ -66,7 +75,7 @@ def save_cert_key(
     name: str,
     cert_store: str,
     password: bytes,
-    root_cert: x509.Certificate=None,
+    root_cert: x509.Certificate = None,
 ):
     # encryption = serialization.BestAvailableEncryption(password)
     # name_bytes = name.encode("utf-8")
@@ -192,6 +201,7 @@ def issue_cert(args, entity):
         entity.add_url(args.url)
 
     ca_password = args.ca_password.encode("utf-8")
+    ca_password = None if len(ca_password) == 0 else ca_password
     ca_cert, ca_private_key = load_cert_key(args.ca, args.store, ca_password)
     private_key = generate_private_key()
     ca_skid = ca_cert.extensions.get_extension_for_class(x509.SubjectKeyIdentifier)
@@ -215,7 +225,7 @@ def main():
     )
     subparsers = parser.add_subparsers(title="subcommands", help="see additional help")
     ca_parser = subparsers.add_parser(
-        "ca",
+        "create_ca",
         help="create root CA",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
@@ -242,7 +252,7 @@ def main():
         "-s", "--store", type=str, default="./", help="where to store certs and keys"
     )
     parser.add_argument(
-        "-p", "--password", type=str, required=True, help="key encryption password"
+        "-p", "--password", type=str, default="", help="key encryption password"
     )
 
     ca_parser.add_argument(
@@ -265,7 +275,7 @@ def main():
         "-c", "--ca", type=str, default="", help="CA name to issue cert from"
     )
     issue_parser.add_argument(
-        "--ca_password", type=str, required=True, help="password for CA"
+        "--ca_password", type=str, default="", help="password for CA"
     )
     issue_parser.add_argument(
         "-e", "--expire", type=int, default=30, help="days until cert expires"
@@ -280,8 +290,8 @@ def main():
         args.org,
         args.name,
     )
-    password = args.password.encode("utf-8")
     cert, key, root = args.func(args, entity)
+    password = args.password.encode("utf-8") if len(args.password) > 0 else None
     save_cert_key(cert, key, args.name, args.store, password, root)
 
 
