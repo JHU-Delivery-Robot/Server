@@ -4,6 +4,12 @@ OSRM/data/
 # Ignore generated protobuf/gRPC files
 *.pb*
 
+# Ignore config
+/config.json
+
+# Ignore mTLS certs
+certs/**
+!certs/certgen.py
+
 # Ignore executables
 *.exe
-

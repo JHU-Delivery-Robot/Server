@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 
@@ -23,15 +22,13 @@ func (s *Server) GetRoute(client_ctx context.Context, robotStatus *pb.RobotStatu
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, errors.New("could not get meta from incoming context")
+		return nil, status.Error(codes.Internal, "could not get meta from incoming context")
 	}
 
 	identity := md.Get(middleware.Identity)
-	if len(identity) == 1 {
-		log.Printf("identity: %s\n", identity[0])
-	} else {
-		log.Printf("no identity found\n")
-		return nil, status.Error(codes.Unauthenticated, "no identity provided")
+	if len(identity) != 1 {
+		log.Printf("valid identity not found\n")
+		return nil, status.Error(codes.Unauthenticated, "invalid authentication credentials")
 	}
 
 	waypoints, hasOverride := s.routeOverrides[identity[0]]

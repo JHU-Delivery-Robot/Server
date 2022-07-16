@@ -14,30 +14,30 @@ import (
 )
 
 func main() {
-	// flag.Usage = func() {
-	// 	fmt.Printf("Usage: %s [config path]\n", os.Args[0])
-	// }
+	config, err := LoadConfig("/etc/navserver/config.json")
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
 
-	// flag.Parse()
-
-	// args := flag.Args()
-	// if len(args) != 1 {
-	// 	flag.Usage()
-	// 	os.Exit(1)
-	// }
-
-	listener, err := net.Listen("tcp", ":9000")
+	listener, err := net.Listen("tcp", ":443")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	osrm := osrm.New()
 	authentication := middleware.Authentication{}
+	credentials, err := authentication.LoadCredentials(
+		config.Credentials.RootCA,
+		config.Credentials.Certificate,
+		config.Credentials.Key,
+	)
+	if err != nil {
+		log.Fatalf("credentials error: %v", err)
+	}
 
-	grpc := grpc.NewServer(grpc.UnaryInterceptor(authentication.GetUnaryMiddleware()))
-	server := server.New(ctx, osrm)
+	grpc := grpc.NewServer(grpc.Creds(credentials), grpc.UnaryInterceptor(authentication.GetUnaryMiddleware()))
+	server := server.New(ctx, osrm.New())
 	pb.RegisterRoutingServer(grpc, &server)
 	pb.RegisterDevelopmentServer(grpc, &server)
 

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"errors"
 	"log"
 
 	"github.com/JHU-Delivery-Robot/Server/internal/grpcutils"
@@ -17,13 +16,13 @@ func (s *Server) SetRoute(client_ctx context.Context, route *pb.Route) (*pb.Rout
 	ctx := grpcutils.MergeServerContext(s.ctx, client_ctx)
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, errors.New("could not get meta from incoming context")
+		return nil, status.Error(codes.Internal, "could not get meta from incoming context")
 	}
 
 	identity := md.Get(middleware.Identity)
 	if len(identity) != 1 {
-		log.Println("no identity found")
-		return nil, status.Error(codes.Unauthenticated, "no identity provided")
+		log.Printf("valid identity not found\n")
+		return nil, status.Error(codes.Unauthenticated, "invalid authentication credentials")
 	}
 
 	s.AddRoute(identity[0], route.Waypoints)

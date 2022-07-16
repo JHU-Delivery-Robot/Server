@@ -19,12 +19,11 @@ RUN apt-get update \
 RUN protoc --proto_path="protocols" --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative protocols/routing.proto
 RUN protoc --proto_path="protocols" --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative protocols/development.proto
 
-RUN go build -o /src/server/navserver ./cmd/server/main.go
+RUN go build -o /src/server/navserver ./cmd/server/
 
 FROM ubuntu:latest
 
 COPY --from=build /src/server/navserver /usr/local/bin/navserver/
-COPY testRoute.txt /usr/local/bin/navserver/
 
 WORKDIR /usr/local/bin/navserver
 ENTRYPOINT [ "./navserver" ]
