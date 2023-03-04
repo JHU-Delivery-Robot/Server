@@ -7,9 +7,9 @@ RUN go mod download
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
+COPY ./protocols/ ./protocols/
 COPY ./cmd/ ./cmd/
 COPY ./internal/ ./internal/
-COPY ./protocols/ ./protocols/
 
 RUN apt-get update \
 && DEBIAN_FRONTEND=noninteractive \

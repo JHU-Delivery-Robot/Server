@@ -15,11 +15,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Authentication struct{}
-
 const Identity = "identity"
 
-func (a *Authentication) LoadCredentials(rootCA, serverCert, serverKey string) (credentials.TransportCredentials, error) {
+func LoadCredentials(rootCA, serverCert, serverKey string) (credentials.TransportCredentials, error) {
 	tlsCert, err := tls.LoadX509KeyPair(serverCert, serverKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load server key/cert pair: %v", err)
@@ -46,7 +44,7 @@ func (a *Authentication) LoadCredentials(rootCA, serverCert, serverKey string) (
 	return credentials.NewTLS(tlsConfig), nil
 }
 
-func (a *Authentication) GetUnaryMiddleware() grpc.UnaryServerInterceptor {
+func MTLSHandler() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {

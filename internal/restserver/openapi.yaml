@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  version: 0.0.1
+  title: JHU Deliverbot Control Server Documentation
+tags:
+  - name: robots
+    description: Known robots
+  - name: requests
+    description: Routing requests
+paths:
+  /robots:
+    get:
+      tags:
+        - robots
+      summary: Get all robots
+      description: List all currently known robots
+      operationId: getRobots
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/robot'
+        '500':
+          description: Internal server error
+  /requests:
+    get:
+      tags:
+        - requests
+      summary: Get all requests
+      description: List all active and completed requests
+      operationId: getRequests
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/request'
+        '500':
+          description: Internal server error
+    post:
+      tags:
+        - requests
+      summary: Add new request
+      description: Add new active request to queue
+      operationId: addRequest
+      requestBody:
+        description: Destination
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/point'
+        required: true
+      responses:
+        '201':
+          description: Successfully created request
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    point:
+      type: object
+      properties:
+        longitude:
+          type: number
+          format: double
+          example: -76.615278
+        latitude:
+          type: number
+          format: double
+          example: 39.289444
+    robot:
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        status:
+          type: string
+          enum:
+            - OK
+            - ERROR
+          example: OK
+        location:
+          $ref: '#/components/schemas/point'
+        route:
+          type: array
+          items:
+            $ref: '#/components/schemas/point'
+    request:
+      type: object
+      properties:
+        id:
+          type: string
+          format: UUID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        location:
+          $ref: '#/components/schemas/point'
+        complete:
+          type: boolean

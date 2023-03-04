@@ -15,7 +15,11 @@ type TLSCredentials struct {
 }
 
 type Config struct {
-	Credentials TLSCredentials `json:"credentials" validate:"required"`
+	Credentials     TLSCredentials `json:"credentials" validate:"required"`
+	GRPCListen      string         `json:"gRPCListen" validate:"required"`
+	RESTListen      string         `json:"restListen" validate:"required"`
+	OSRMAddress     string         `json:"OSRMAddress" validate:"required"`
+	OSRMPRofileName string         `json:"OSRMProfileName" validate:"required"`
 }
 
 func LoadConfig(path string) (Config, error) {

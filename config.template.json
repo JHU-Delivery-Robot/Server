@@ -3,5 +3,9 @@
         "rootCA": "/etc/navserver/certs/local_test_ca.crt",
         "certificate": "/etc/navserver/certs/local_test_server.crt",
         "key": "/etc/navserver/certs/local_test_server.key"
-    }
+    },
+    "GRPCListen": ":443",
+    "RESTListen": ":8080",
+    "OSRMAddress": "http://osrm:5000",
+    "OSRMProfileName": "wheelchairelektro"
 }

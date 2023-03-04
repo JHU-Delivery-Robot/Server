@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	pb "github.com/JHU-Delivery-Robot/Server/protocols"
+	"github.com/JHU-Delivery-Robot/Server/internal/store"
 )
 
 type coordinates []float64
@@ -36,7 +36,7 @@ func (r routeResponse) String() string {
 		return fmt.Sprintf("%s: %s", r.Code, *r.Message)
 	}
 
-	return fmt.Sprintf("%s", r.Code)
+	return r.Code
 }
 
 type Client struct {
@@ -46,10 +46,10 @@ type Client struct {
 	client          *http.Client
 }
 
-func New() Client {
+func New(osrmAddress string, profileName string) Client {
 	return Client{
-		baseURL:         "http://osrm:5000",
-		profileName:     "wheelchairelektro",
+		baseURL:         osrmAddress,
+		profileName:     profileName,
 		maxResponseSize: 1.2e+6,
 		client: &http.Client{
 			Timeout: time.Second * 10,
@@ -57,7 +57,7 @@ func New() Client {
 	}
 }
 
-func (c *Client) Route(ctx context.Context, start *pb.Point, end *pb.Point) ([]*pb.Point, error) {
+func (c *Client) Route(ctx context.Context, start store.Point, end store.Point) ([]store.Point, error) {
 	start_string := strconv.FormatFloat(start.Longitude, 'f', 5, 64) + "," + strconv.FormatFloat(start.Latitude, 'f', 5, 64)
 	end_string := strconv.FormatFloat(end.Longitude, 'f', 5, 64) + "," + strconv.FormatFloat(end.Latitude, 'f', 5, 64)
 
@@ -96,13 +96,14 @@ func (c *Client) Route(ctx context.Context, start *pb.Point, end *pb.Point) ([]*
 	}
 
 	var points = osrm_response.Routes[0].Geometry.Coordinates
-	var waypoints = make([]*pb.Point, len(points))
+	var waypoints = make([]store.Point, len(points))
 
 	for i := 0; i < len(points); i++ {
-		var waypoint pb.Point
-		waypoint.Longitude = points[i][0]
-		waypoint.Latitude = points[i][1]
-		waypoints[i] = &waypoint
+		waypoint := store.Point{
+			Longitude: points[i][0],
+			Latitude:  points[i][1],
+		}
+		waypoints[i] = waypoint
 	}
 
 	return waypoints, nil

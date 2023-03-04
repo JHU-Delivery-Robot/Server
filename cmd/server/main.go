@@ -3,14 +3,16 @@ package main
 import (
 	"context"
 	"log"
-	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/JHU-Delivery-Robot/Server/internal/grpcutils"
+	"github.com/JHU-Delivery-Robot/Server/internal/assigner"
+	"github.com/JHU-Delivery-Robot/Server/internal/grpcserver"
 	"github.com/JHU-Delivery-Robot/Server/internal/middleware"
 	"github.com/JHU-Delivery-Robot/Server/internal/osrm"
-	"github.com/JHU-Delivery-Robot/Server/internal/server"
-	pb "github.com/JHU-Delivery-Robot/Server/protocols"
-	"google.golang.org/grpc"
+	"github.com/JHU-Delivery-Robot/Server/internal/restserver"
+	"github.com/JHU-Delivery-Robot/Server/internal/store"
 )
 
 func main() {
@@ -19,15 +21,7 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	listener, err := net.Listen("tcp", ":443")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-
-	authentication := middleware.Authentication{}
-	credentials, err := authentication.LoadCredentials(
+	credentials, err := middleware.LoadCredentials(
 		config.Credentials.RootCA,
 		config.Credentials.Certificate,
 		config.Credentials.Key,
@@ -36,14 +30,35 @@ func main() {
 		log.Fatalf("credentials error: %v", err)
 	}
 
-	grpc := grpc.NewServer(grpc.Creds(credentials), grpc.UnaryInterceptor(authentication.GetUnaryMiddleware()))
-	server := server.New(ctx, osrm.New())
-	pb.RegisterRoutingServer(grpc, &server)
-	pb.RegisterDevelopmentServer(grpc, &server)
+	ctx, cancel := context.WithCancel(context.Background())
 
-	grpcutils.SetupShutdown(cancel, grpc)
+	go func() {
+		stopChannel := make(chan os.Signal, 1)
+		signal.Notify(stopChannel, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	if err := grpc.Serve(listener); err != nil {
-		log.Fatalf("failed to serve: %s", err)
+		<-stopChannel // blocking wait for signal
+		cancel()
+	}()
+
+	store, err := store.New()
+	if err != nil {
+		log.Fatalf("store creation error: %v", err)
 	}
+
+	osrmClient := osrm.New(config.OSRMAddress, config.OSRMPRofileName)
+	assigner := assigner.New(store, osrmClient)
+	grpc_server := grpcserver.New(store, assigner, credentials, config.GRPCListen, ctx)
+	rest_server := restserver.New(config.RESTListen, store)
+
+	errs := make(chan error)
+	go func() {
+		errs <- grpc_server.Run()
+	}()
+	go func() {
+		errs <- rest_server.Run(ctx)
+	}()
+
+	err = <-errs
+	cancel()
+	log.Fatalf("error: %v", err)
 }

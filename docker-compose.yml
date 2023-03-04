@@ -8,6 +8,7 @@ services:
       - "./config.json:/etc/navserver/config.json"
     ports:
       - "443:443"
+      - "8080:8080"
   osrm:
     container_name: osrm
     image: osrm/osrm-backend
