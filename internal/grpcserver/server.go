@@ -3,13 +3,13 @@ package grpcserver
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 
 	"github.com/JHU-Delivery-Robot/Server/internal/assigner"
 	"github.com/JHU-Delivery-Robot/Server/internal/middleware"
 	"github.com/JHU-Delivery-Robot/Server/internal/store"
 	pb "github.com/JHU-Delivery-Robot/Server/protocols"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -21,16 +21,25 @@ type Server struct {
 	mTLSCredentials credentials.TransportCredentials
 	listenAddress   string
 
+	logger   *logrus.Entry
 	store    *store.Store
 	assigner *assigner.Assigner
 
 	ctx context.Context
 }
 
-func New(store *store.Store, assigner *assigner.Assigner, mTLSCredentials credentials.TransportCredentials, listenAddress string, ctx context.Context) Server {
+func New(
+	store *store.Store,
+	assigner *assigner.Assigner,
+	mTLSCredentials credentials.TransportCredentials,
+	listenAddress string,
+	ctx context.Context,
+	logger *logrus.Entry,
+) Server {
 	return Server{
 		mTLSCredentials: mTLSCredentials,
 		listenAddress:   listenAddress,
+		logger:          logger,
 		store:           store,
 		assigner:        assigner,
 		ctx:             ctx,
@@ -52,7 +61,7 @@ func (s *Server) Run() error {
 		errs <- grpc.Serve(listener)
 	}()
 
-	log.Println("gRPC server listening...")
+	s.logger.Info("gRPC server listening...")
 
 	select {
 	case err := <-errs:

@@ -57,7 +57,7 @@ func (a *Assigner) Route(robotID string, robotLocation store.Point, ctx context.
 		return waypoints, nil
 	}
 
-	requests, err := a.store.IncompleteRequests()
+	requests, err := a.store.GetIncompleteRequests()
 	if err != nil {
 		return nil, fmt.Errorf("getting incomplete requsts: %v", err)
 	}

@@ -29,7 +29,7 @@ var requestsTableSchema = &memdb.TableSchema{
 	},
 }
 
-func (s *Store) GetRequests() ([]Request, error) {
+func (s *Store) GetAllRequests() ([]Request, error) {
 	txn := s.database.Txn(false)
 	defer txn.Abort()
 
@@ -39,6 +39,25 @@ func (s *Store) GetRequests() ([]Request, error) {
 	}
 
 	var requests = make([]Request, 0)
+
+	for obj := results.Next(); obj != nil; obj = results.Next() {
+		request := obj.(Request)
+		requests = append(requests, request)
+	}
+
+	return requests, nil
+}
+
+func (s *Store) GetIncompleteRequests() ([]Request, error) {
+	txn := s.database.Txn(false)
+	defer txn.Abort()
+
+	results, err := txn.Get(tableRequests, "complete", false)
+	if err != nil {
+		return nil, fmt.Errorf("listing incomplete requests: %v", err)
+	}
+
+	var requests []Request
 
 	for obj := results.Next(); obj != nil; obj = results.Next() {
 		request := obj.(Request)
@@ -66,21 +85,20 @@ func (s *Store) CreateRequest(location Point) (string, error) {
 	return requestID, nil
 }
 
-func (s *Store) IncompleteRequests() ([]Request, error) {
-	txn := s.database.Txn(false)
-	defer txn.Abort()
+func (s *Store) DeleteRequest(requestID string) (bool, error) {
+	txn := s.database.Txn(true)
+	defer txn.Commit()
 
-	results, err := txn.Get(tableRequests, "complete", false)
+	count, err := txn.DeleteAll(tableRequests, "requestID", requestID)
 	if err != nil {
-		return nil, fmt.Errorf("listing incomplete requests: %v", err)
+		return false, fmt.Errorf("deleting request %v: %v", requestID, err)
 	}
 
-	var requests []Request
-
-	for obj := results.Next(); obj != nil; obj = results.Next() {
-		request := obj.(Request)
-		requests = append(requests, request)
+	if count == 0 {
+		return false, nil
+	} else if count == 1 {
+		return true, nil
+	} else {
+		return true, fmt.Errorf("found duplicates while deleting request %v: %v", requestID, err)
 	}
-
-	return requests, nil
 }

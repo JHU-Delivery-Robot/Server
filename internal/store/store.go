@@ -4,11 +4,13 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/go-memdb"
+	"github.com/sirupsen/logrus"
 )
 
 type Store struct {
 	// map from identifiers to Robots
 	database *memdb.MemDB
+	logger   *logrus.Entry
 }
 
 type Point struct {
@@ -22,7 +24,7 @@ const (
 	tableRobots      = "robots"
 )
 
-func New() (*Store, error) {
+func New(logger *logrus.Entry) (*Store, error) {
 	schema := &memdb.DBSchema{
 		Tables: map[string]*memdb.TableSchema{
 			tableAssignments: assignmentsTableSchema,
@@ -43,5 +45,6 @@ func New() (*Store, error) {
 
 	return &Store{
 		database: db,
+		logger:   logger,
 	}, nil
 }

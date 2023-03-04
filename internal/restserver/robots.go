@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/JHU-Delivery-Robot/Server/internal/store"
+	"github.com/gorilla/mux"
 )
 
 type Robot struct {
@@ -18,6 +19,7 @@ func (s *Server) getRobotsHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		robots, err := s.store.GetRobots()
 		if err != nil {
+			s.logger.Error(err)
 			Error(w, http.StatusInternalServerError)
 			return
 		}
@@ -26,6 +28,7 @@ func (s *Server) getRobotsHandler() http.HandlerFunc {
 		for _, robot := range robots {
 			route, err := s.store.GetRoute(robot.ID)
 			if err != nil {
+				s.logger.Error(err)
 				Error(w, http.StatusInternalServerError)
 				return
 			}
@@ -44,8 +47,9 @@ func (s *Server) getRobotsHandler() http.HandlerFunc {
 
 func (s *Server) getRequestsHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		requests, err := s.store.GetRequests()
+		requests, err := s.store.GetAllRequests()
 		if err != nil {
+			s.logger.Error(err)
 			Error(w, http.StatusInternalServerError)
 			return
 		}
@@ -64,9 +68,29 @@ func (s *Server) postRequestHandler() http.HandlerFunc {
 
 		requestID, err := s.store.CreateRequest(requestLocation)
 		if err != nil {
+			s.logger.Error(err)
 			Error(w, http.StatusInternalServerError)
 		}
 
 		Respond(w, requestID, http.StatusCreated)
+	}
+}
+
+func (s *Server) deleteRequestHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := mux.Vars(r)["id"]
+		deleted, err := s.store.DeleteRequest(id)
+		if err != nil {
+			s.logger.Error(err)
+			Error(w, http.StatusInternalServerError)
+			return
+		}
+
+		if !deleted {
+			Error(w, http.StatusNotFound)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
 	}
 }

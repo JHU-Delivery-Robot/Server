@@ -3,24 +3,26 @@ package restserver
 import (
 	"context"
 	_ "embed"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/JHU-Delivery-Robot/Server/internal/store"
 	"github.com/NYTimes/gziphandler"
+	"github.com/sirupsen/logrus"
 )
 
 // Server is the client-facing REST server
 type Server struct {
 	listenAddress string
 	store         *store.Store
+	logger        *logrus.Entry
 }
 
-func New(listenAddress string, store *store.Store) Server {
+func New(listenAddress string, store *store.Store, logger *logrus.Entry) Server {
 	return Server{
 		listenAddress: listenAddress,
 		store:         store,
+		logger:        logger,
 	}
 }
 
@@ -54,7 +56,7 @@ func (s *Server) Run(ctx context.Context) error {
 		errs <- httpServer.ListenAndServe()
 	}()
 
-	log.Println("REST server listening...")
+	s.logger.Info("REST server listening...")
 
 	select {
 	case err := <-errs:

@@ -2,7 +2,6 @@ package grpcserver
 
 import (
 	"context"
-	"log"
 
 	"github.com/JHU-Delivery-Robot/Server/internal/middleware"
 	"github.com/JHU-Delivery-Robot/Server/internal/store"
@@ -28,17 +27,18 @@ func ToStoreRoute(route []*pb.Point) []store.Point {
 func (s *Server) SetRoute(clientCtx context.Context, route *pb.Route) (*pb.RouteResponse, error) {
 	md, ok := metadata.FromIncomingContext(clientCtx)
 	if !ok {
+		s.logger.Error("could not get meta from incoming context")
 		return nil, status.Error(codes.Internal, "could not get meta from incoming context")
 	}
 
 	identity := md.Get(middleware.Identity)
 	if len(identity) != 1 {
-		log.Printf("valid identity not found\n")
+		s.logger.Error("valid identity not found")
 		return nil, status.Error(codes.Unauthenticated, "invalid authentication credentials")
 	}
 
 	s.assigner.AddOverride(identity[0], ToStoreRoute(route.Waypoints))
-	log.Printf("route override set for: %s\n", identity[0])
+	s.logger.Infof("route override set for: %s", identity[0])
 
 	return &pb.RouteResponse{}, nil
 }

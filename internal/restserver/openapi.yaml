@@ -62,6 +62,27 @@ paths:
           description: Successfully created request
         '500':
           description: Internal server error
+  /requests/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          $ref: "#/components/schemas/request/properties/id"
+        required: true
+        description: UIID of request to delete
+    delete:
+      tags:
+        - requests
+      summary: Delete existing request
+      description: Delete existing request, unassigning robot if necessary
+      operationId: deleteRequest
+      responses:
+        '204':
+          description: Successfully deleted request
+        '404':
+          description: Specified request not found
+        '500':
+          description: Internal server error
 components:
   schemas:
     point:
@@ -80,8 +101,7 @@ components:
       properties:
         id:
           type: string
-          format: UUID
-          example: 123e4567-e89b-12d3-a456-426614174000
+          example: local_test_robot_1
         status:
           type: string
           enum:

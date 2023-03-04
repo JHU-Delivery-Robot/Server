@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -13,6 +14,7 @@ import (
 	"github.com/JHU-Delivery-Robot/Server/internal/osrm"
 	"github.com/JHU-Delivery-Robot/Server/internal/restserver"
 	"github.com/JHU-Delivery-Robot/Server/internal/store"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -21,13 +23,18 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
+	logger := logrus.New()
+	logger.SetLevel(logrus.InfoLevel)
+
+	logger.Info("loading mTLS credentials...")
+
 	credentials, err := middleware.LoadCredentials(
 		config.Credentials.RootCA,
 		config.Credentials.Certificate,
 		config.Credentials.Key,
 	)
 	if err != nil {
-		log.Fatalf("credentials error: %v", err)
+		logger.Fatal(fmt.Errorf("credentials error: %v", err))
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -37,28 +44,35 @@ func main() {
 		signal.Notify(stopChannel, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 		<-stopChannel // blocking wait for signal
+		logger.Info("received shutdown request, exiting...")
 		cancel()
 	}()
 
-	store, err := store.New()
+	storeLogger := logrus.WithField("service", "store")
+	store, err := store.New(storeLogger)
 	if err != nil {
-		log.Fatalf("store creation error: %v", err)
+		logger.Fatal(fmt.Errorf("store creation error: %v", err))
 	}
 
 	osrmClient := osrm.New(config.OSRMAddress, config.OSRMPRofileName)
 	assigner := assigner.New(store, osrmClient)
-	grpc_server := grpcserver.New(store, assigner, credentials, config.GRPCListen, ctx)
-	rest_server := restserver.New(config.RESTListen, store)
+
+	grpcLogger := logrus.WithField("service", "gRPC")
+	grpcServer := grpcserver.New(store, assigner, credentials, config.GRPCListen, ctx, grpcLogger)
+	restLogger := logrus.WithField("service", "REST")
+	restServer := restserver.New(config.RESTListen, store, restLogger)
 
 	errs := make(chan error)
 	go func() {
-		errs <- grpc_server.Run()
+		errs <- grpcServer.Run()
 	}()
 	go func() {
-		errs <- rest_server.Run(ctx)
+		errs <- restServer.Run(ctx)
 	}()
 
 	err = <-errs
 	cancel()
-	log.Fatalf("error: %v", err)
+	if err != nil {
+		logger.Fatal(err)
+	}
 }
